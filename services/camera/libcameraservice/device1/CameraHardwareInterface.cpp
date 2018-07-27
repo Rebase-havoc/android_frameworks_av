@@ -140,14 +140,10 @@ hardware::Return<void> CameraHardwareInterface::dataCallback(
 hardware::Return<void> CameraHardwareInterface::QDataCallback(
         DataCallbackMsg msgType, uint32_t data, uint32_t bufferIndex,
         const vendor::qti::hardware::camera::device::V1_0::QCameraFrameMetadata& metadata) {
-    camera_memory_t* mem = nullptr;
-    {
-        std::lock_guard<std::mutex> lock(mHidlMemPoolMapLock);
-        if (mHidlMemPoolMap.count(data) == 0) {
-            ALOGE("%s: memory pool ID %d not found", __FUNCTION__, data);
-            return hardware::Void();
-        }
-        mem = mHidlMemPoolMap.at(data);
+    std::lock_guard<std::mutex> lock(mHidlMemPoolMapLock);
+    if (mHidlMemPoolMap.count(data) == 0) {
+        ALOGE("%s: memory pool ID %d not found", __FUNCTION__, data);
+        return hardware::Void();
     }
     camera_frame_metadata_t md;
     md.number_of_faces = metadata.faces.size();
